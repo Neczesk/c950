@@ -60,6 +60,16 @@ class Truck:
 		output += "The truck will have driven " + str(parcel_tuple[1]) + " miles."
 		return output
 
+	def package_time_report(self, parcel_id, time) -> str:
+		output = ""
+		if parcel_id in self.parcels:
+			p_tup = self.package_report(parcel_id)
+			if datetime.combine(date.today(), time) < p_tup[0]:
+				output += "Package " + str(parcel_id) + " has not yet been delivered"
+			else:
+				output += "Package " + str(parcel_id) + " was delivered at " + str(p_tup[0])
+		return output
+
 	def time_report(self, report_time):
 		current_time = datetime.combine(date.today(), self.start_time)
 		for i in range(0, len(self.path())):
@@ -69,8 +79,25 @@ class Truck:
 			else:
 				pass #calculate a new current time and distance then try the next package. The report should say which package is currently being delivered
 
-	def truck_report(self):
-		pass
+	def truck_report(self) -> str:
+		# returns a string indicating
+		# a delivery time for all packages 
+		# assigned to the truck as well as total miles driven at the end
+		output = ""
+		distance_sum = 0
+		for parcel in self.parcels:
+			pack_tuple = self.package_report(self.parcels[parcel].package_id)
+			distance_sum += pack_tuple[1]
+			output += "Package " + str(self.parcels[parcel].package_id) + " will be delivered at: "
+			output += str(pack_tuple[0]) + "\n"
+		output += "The truck will have driven a total of " + str(distance_sum) + " miles."
+		return output
+
+	def is_parcel_on_truck(self, id) -> bool:
+		if id in self.parcels:
+			return True
+		else:
+			return False
 
 
 
@@ -83,5 +110,9 @@ if __name__ == "__main__":
 	t.add_parcel(p_table.parcel_table.lookup(7))
 	t.add_parcel(p_table.parcel_table.lookup(13))
 	t.generate_path()
-	print(t.path)
-	print(t.formatted_packaged_report(13, t.package_report(13)))
+	# print(t.path)
+	# print(t.formatted_packaged_report(13, t.package_report(13)))
+	print(t.truck_report())
+	report_time = time(hour=8, minute = 10)
+	report_time = datetime.combine(date.today(), report_time)
+	print(t.package_time_report(7, report_time))
