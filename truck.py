@@ -1,9 +1,12 @@
 import adjacencymap
 from datetime import datetime, time, date, timedelta
 
+# This is used to sort the packages for the pathfinding function. It sorts by the distance.
 def sort_tuples_by_distance(t):
 	return t[1]
 
+# The Truck class holds the data for each truck, and contains the behavior needed for
+# the efficient pathfinding.
 class Truck:
 	def __init__(self, id, nav_table, start_time):
 		self.id = id
@@ -15,8 +18,12 @@ class Truck:
 		self.nav_table = nav_table
 		self.start_location = "HUB"
 
+	# This is where pathfinding takes place. I'm using a nearest neighbor algorithm to do this.
+	# The truck finds the closest package to the hub and delivers that one, then finds the closest
+	# package to that one, then continues on. The time complexity of this code is O(n^2 * logn) because the call
+	# to get_closest_parcel_id is O(n*logn) and is contained by a loop that is also O(n).
 	def generate_path(self):
-		#This is where pathfinding takes place. I'm using a nearest neighbor algorithm
+		
 		self.path.clear()
 		remaining_parcels = self.parcels.copy()
 		current_location = self.start_location
@@ -26,7 +33,8 @@ class Truck:
 			remaining_parcels.pop(closest_package_tuple[0])
 			current_location = self.parcels[closest_package_tuple[0]].delivery_address
 
-
+	# This finds the package id with the address closest to the truck's given location. The time complexity
+	# is O(n*logn) to be more exact because the loop is O(n) and python's list sort algorithm is O(logn)
 	def get_closest_parcel_id(self, origin, input_dict):
 		distance_tuple_list = []
 		for parcel in input_dict:
@@ -39,6 +47,10 @@ class Truck:
 		self.parcels[parcel.package_id] = parcel
 		# self.generate_path()
 
+	# This gets a tuple that can be used to generate reports for the main application. It 
+	# loops through the path (which must be generated first) and returns a tuple of the form
+	# (time_delivered, distance_driven). Time complexity is O(n), with n being the number of
+	# packages assigned to that truck.
 	def package_report(self, parcel_id):
 		#returns a tuple of the form (time_delivered, distance driven)
 		output = ""
@@ -54,12 +66,15 @@ class Truck:
 					break
 		return (datetime.combine(date.today(), self.start_time) + elapsed_time, tracked_distance)
 
+	# This function uses the tuple from package_report to generate a formatted string.
 	def formatted_packaged_report(self, parcel_id, parcel_tuple):
 		output = "Parcel " + str(parcel_id) + " will be delivered at: "
 		output += str(parcel_tuple[0]) + ".\n"
 		output += "The truck will have driven " + str(parcel_tuple[1]) + " miles."
 		return output
 
+	# Reports the status of the given package at the given time. It uses the package_report
+	# tuple to see if a package has been delivered yet.
 	def package_time_report(self, parcel_id, time) -> str:
 		output = ""
 		if parcel_id in self.parcels:
@@ -70,28 +85,27 @@ class Truck:
 				output += "Package " + str(parcel_id) + " was delivered at " + str(p_tup[0])
 		return output
 
-	def time_report(self, report_time):
-		current_time = datetime.combine(date.today(), self.start_time)
-		for i in range(0, len(self.path())):
-			next_package_info = self.package_report(self.path[i])
-			if (next_package_info[0] > report_time):
-				break #If the next package delivery time is greater than the report time, that is the package currently being delivered at the given time
-			else:
-				pass #calculate a new current time and distance then try the next package. The report should say which package is currently being delivered
 
 	def truck_report(self) -> str:
-		# returns a string indicating
-		# a delivery time for all packages 
-		# assigned to the truck as well as total miles driven at the end
+		# returns a string indicating a delivery time for all packages 
+		# assigned to the truck as well as total miles driven at the end.
+		# Time complexity is O(n^2) because of the call to package_report, which is 
+		# O(n)
 		output = ""
-		distance_sum = 0
 		for parcel in self.parcels:
 			pack_tuple = self.package_report(self.parcels[parcel].package_id)
-			distance_sum += pack_tuple[1]
 			output += "Package " + str(self.parcels[parcel].package_id) + " will be delivered at: "
 			output += str(pack_tuple[0]) + "\n"
-		output += "The truck will have driven a total of " + str(distance_sum) + " miles."
+
+		output += "The truck will have driven a total of " + str(self.truck_distance_calc()) + " miles."
 		return output
+
+	# Gets the total distance driven by the truck. Time complexity is O(n), where n is the number of parcels assigned to the truck.
+	def truck_distance_calc(self) -> int:
+		distance_sum = 0
+		for parcel in self.path:
+			distance_sum += parcel[1]
+		return distance_sum
 
 	def is_parcel_on_truck(self, id) -> bool:
 		if id in self.parcels:
@@ -101,7 +115,7 @@ class Truck:
 
 
 
-
+# This code is only for testing.
 if __name__ == "__main__":
 	import parcel_table
 	p_table = parcel_table.ParcelData()

@@ -3,7 +3,9 @@ import hash_table
 import csv
 import datetime
 
-
+# The ParcelData class contains all the useful information that the application needs to keep track of.
+# When constructed it opens the package_data.csv file as its information source and uses the Parcel class
+# and my hash table implementation to store the data.
 class ParcelData:
 	def __init__(self):
 		with open('package_data.csv') as parcel_data:

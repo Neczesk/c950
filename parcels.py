@@ -1,4 +1,5 @@
 
+# The Parcel class contains the data needed for each parcel.
 class Parcel:
 	def __init__(self):
 		package_id = -1
