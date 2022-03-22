@@ -1,3 +1,9 @@
+# 
+# Author's Name: Kyle Haltermann
+# Student ID: 001169773
+# 
+
+
 import parcel_table
 import adjacencymap
 import truck
@@ -10,16 +16,24 @@ from datetime import time, datetime, date
 def package_time_report(p_id, p_time, truck_list, p_table, show_package_info = False):
 	relevant_truck = None
 	output = ""
-	if show_package_info:
-		output += str(p_table.parcel_table.lookup(p_id)) + "\n"
 	for truck in truck_list:
 		if truck.is_parcel_on_truck(p_id):
 			relevant_truck = truck
 			break
 	if relevant_truck != None and datetime.combine(date.today(), relevant_truck.start_time) < datetime.combine(date.today(), p_time):
-		output += relevant_truck.package_time_report(p_id, p_time)
+		relevant_truck.set_package_status(p_id, p_time)
 	else:
-		return "Package " + str(p_id) + " is still at hub"
+		p_table.parcel_table.lookup(p_id).delivery_status = "Package is still at hub."
+
+	if p_time < time.fromisoformat("09:05") and p_table.parcel_table.lookup(p_id).special_note == "Delayed on flight---will not arrive to depot until 9:05 am":
+		p_table.parcel_table.lookup(p_id).delivery_status = "Package is delayed until 9:05 AM"
+	if p_table.parcel_table.lookup(p_id).special_note == "Wrong address listed":
+		if p_time < time.fromisoformat("10:20"):
+			p_table.parcel_table.lookup(p_id).delivery_status = "Package delayed because of incorrect address."
+	if show_package_info:
+		output += str(p_table.parcel_table.lookup(p_id)) + "\n"
+	else:
+		output += p_table.parcel_table.lookup(p_id).delivery_status
 	return output
 
 
@@ -28,7 +42,7 @@ admap = adjacencymap.MyAdjacencyMap()
 
 truck1 = truck.Truck(1, admap, time(hour=8))
 truck2 = truck.Truck(2, admap, time(hour=8))
-truck3 = truck.Truck(3, admap, time(hour=11))
+truck3 = truck.Truck(3, admap, time(hour=10, minute=30))
 # All packages are assigned manually to the three trucks.
 truck1.add_parcel(p_table.parcel_table.lookup(13))
 truck1.add_parcel(p_table.parcel_table.lookup(15))
@@ -64,6 +78,9 @@ truck3.add_parcel(p_table.parcel_table.lookup(25))
 truck3.add_parcel(p_table.parcel_table.lookup(28))
 truck3.add_parcel(p_table.parcel_table.lookup(32))
 truck3.add_parcel(p_table.parcel_table.lookup(9))
+# I treat the wrong address package as a delayed package. The correct address is
+# input now, but the truck will not leave with the package until after 10:20 AM
+p_table.parcel_table.lookup(9).delivery_address = "410 S State St"
 truck3.add_parcel(p_table.parcel_table.lookup(26))
 truck3.add_parcel(p_table.parcel_table.lookup(8))
 truck3.add_parcel(p_table.parcel_table.lookup(30))
@@ -127,7 +144,7 @@ while not quit:
 					print("Time entered is invalid. Please try again.")
 			for t in truck_list:
 				for p in t.parcels:
-					print(package_time_report(p, time_in, truck_list, p_table))
+					print(package_time_report(p, time_in, truck_list, p_table, True))
 		case 4:
 			print("Quitting...")
 			quit = True

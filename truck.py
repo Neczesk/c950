@@ -85,6 +85,14 @@ class Truck:
 				output += "Package " + str(parcel_id) + " was delivered at " + str(p_tup[0])
 		return output
 
+	def set_package_status(self, parcel_id, time):
+		if parcel_id in self.parcels:
+			p_tup = self.package_report(parcel_id)
+			if datetime.combine(date.today(), time) < p_tup[0]:
+				self.parcels[parcel_id].delivery_status = "Package is on truck " + str(self.id) + " and has not been delivered."
+			else:
+				self.parcels[parcel_id].delivery_status = "Package was delivered at " + str(p_tup[0]) + "."
+
 
 	def truck_report(self) -> str:
 		# returns a string indicating a delivery time for all packages 
