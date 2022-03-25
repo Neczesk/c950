@@ -41,14 +41,12 @@ p_table = parcel_table.ParcelData()
 admap = adjacencymap.MyAdjacencyMap()
 
 truck1 = truck.Truck(1, admap, time(hour=8))
-truck2 = truck.Truck(2, admap, time(hour=8))
+truck2 = truck.Truck(2, admap, time(hour=9, minute=5))
 truck3 = truck.Truck(3, admap, time(hour=10, minute=30))
 # All packages are assigned manually to the three trucks.
-truck1.add_parcel(p_table.parcel_table.lookup(13))
-truck1.add_parcel(p_table.parcel_table.lookup(15))
-truck1.add_parcel(p_table.parcel_table.lookup(19))
-truck1.add_parcel(p_table.parcel_table.lookup(14))
-truck1.add_parcel(p_table.parcel_table.lookup(16))
+
+
+
 truck1.add_parcel(p_table.parcel_table.lookup(27))
 truck1.add_parcel(p_table.parcel_table.lookup(35))
 truck1.add_parcel(p_table.parcel_table.lookup(39))
@@ -56,38 +54,58 @@ truck1.add_parcel(p_table.parcel_table.lookup(2))
 truck1.add_parcel(p_table.parcel_table.lookup(33))
 truck1.add_parcel(p_table.parcel_table.lookup(11))
 truck1.add_parcel(p_table.parcel_table.lookup(17))
-truck1.add_parcel(p_table.parcel_table.lookup(34))
 
-truck2.add_parcel(p_table.parcel_table.lookup(3))
+
+# Packages that must be delivered together
+truck1.add_parcel(p_table.parcel_table.lookup(20))
+truck1.add_parcel(p_table.parcel_table.lookup(16))
+truck1.add_parcel(p_table.parcel_table.lookup(13))
+truck1.add_parcel(p_table.parcel_table.lookup(19))
+truck1.add_parcel(p_table.parcel_table.lookup(15))
+truck1.add_parcel(p_table.parcel_table.lookup(14))
+
+#Packages that have to be on Truck 2
 truck2.add_parcel(p_table.parcel_table.lookup(18))
+truck2.add_parcel(p_table.parcel_table.lookup(3))
 truck2.add_parcel(p_table.parcel_table.lookup(36))
 truck2.add_parcel(p_table.parcel_table.lookup(38))
-truck2.add_parcel(p_table.parcel_table.lookup(37))
+
+
 truck2.add_parcel(p_table.parcel_table.lookup(5))
 truck2.add_parcel(p_table.parcel_table.lookup(7))
-truck2.add_parcel(p_table.parcel_table.lookup(29))
-truck2.add_parcel(p_table.parcel_table.lookup(20))
+
 truck2.add_parcel(p_table.parcel_table.lookup(21))
 truck2.add_parcel(p_table.parcel_table.lookup(4))
-truck2.add_parcel(p_table.parcel_table.lookup(40))
+
 truck2.add_parcel(p_table.parcel_table.lookup(24))
 truck2.add_parcel(p_table.parcel_table.lookup(23))
 
-truck3.add_parcel(p_table.parcel_table.lookup(6))
-truck3.add_parcel(p_table.parcel_table.lookup(25))
+# Deadline Packages not delayed
+truck1.add_parcel(p_table.parcel_table.lookup(30))
+truck1.add_parcel(p_table.parcel_table.lookup(31))
+truck1.add_parcel(p_table.parcel_table.lookup(1))
+truck1.add_parcel(p_table.parcel_table.lookup(37))
+truck2.add_parcel(p_table.parcel_table.lookup(29))
+truck1.add_parcel(p_table.parcel_table.lookup(34))
+truck2.add_parcel(p_table.parcel_table.lookup(40))
+
+# Deadline packages with delay
+truck2.add_parcel(p_table.parcel_table.lookup(6))
+truck2.add_parcel(p_table.parcel_table.lookup(25))
+
+
+# Delayed but no deadline
 truck3.add_parcel(p_table.parcel_table.lookup(28))
 truck3.add_parcel(p_table.parcel_table.lookup(32))
+
 truck3.add_parcel(p_table.parcel_table.lookup(9))
 # I treat the wrong address package as a delayed package. The correct address is
 # input now, but the truck will not leave with the package until after 10:20 AM
 p_table.parcel_table.lookup(9).delivery_address = "410 S State St"
 truck3.add_parcel(p_table.parcel_table.lookup(26))
 truck3.add_parcel(p_table.parcel_table.lookup(8))
-truck3.add_parcel(p_table.parcel_table.lookup(30))
-truck3.add_parcel(p_table.parcel_table.lookup(31))
 truck3.add_parcel(p_table.parcel_table.lookup(10))
 truck3.add_parcel(p_table.parcel_table.lookup(22))
-truck3.add_parcel(p_table.parcel_table.lookup(1))
 truck3.add_parcel(p_table.parcel_table.lookup(12))
 
 truck1.generate_path()
